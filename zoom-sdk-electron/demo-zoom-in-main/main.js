@@ -13,7 +13,7 @@ let zoommeeting = null;
 
 // get sdk instance
 zoomsdk = ZOOMSDKMOD.ZoomSDK.getInstance({
-  path:'../lib/node_modules/zoomsdk/build/Release/',
+  path:'../lib/zoomsdk/build/Release/',
   threadsafemode: 0,
   apicallretcb: function(apiname, ret) {
     console.log(`call api, apiname: ${apiname}, ret: ${ret}`);

@@ -1,0 +1,8 @@
+{
+    "files": [
+        "zoom-sdk-electron/"
+    ],
+    "asarUnpack": [
+        "zoom-sdk-electron/lib/zoomsdk"
+    ]
+}
