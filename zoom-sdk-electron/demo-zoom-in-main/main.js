@@ -87,9 +87,10 @@ function setZoomSDKInstance() {
 // join a schueled meeting
 ipcMain.on("join", () => {
   if (!sdkReady) {
-    dialog.showOpenDialog({
-      title: 'sdk not ready because auth not successful'
-    })
+    dialog.showErrorBox(
+      'sdk not ready because auth not successful',
+      'sdk not ready because auth not successful'
+    )
     return
   };
   mylog('[info]joining meeting 8700073849');
@@ -102,9 +103,10 @@ ipcMain.on("join", () => {
 
 ipcMain.on("leave", () => {
   if (!sdkReady) {
-    dialog.showOpenDialog({
-      title: 'sdk not ready because auth not successful'
-    })
+    dialog.showErrorBox(
+      'sdk not ready because auth not successful',
+      'sdk not ready because auth not successful'
+    )
     return
   };
   mylog('[info]leave meeting 8700073849');
