@@ -7,57 +7,111 @@
 </head>
 
 <body>
+    <h2>In the case ZoomSDK running in RENDERER PROCESS, sdk auth callback never trigger</h2>
     <button onclick="join()">join room 8700073849</button>
     <button onclick="leave()">leave</button>
+    <div id="logs"></div>
+
     <script>
         const ZOOMSDKMOD = require("../lib/zoom_sdk.js");
+
         let sdkReady = false;
+
         let zoomsdk = null;
         let zoomauth = null;
         let zoommeeting = null;
-        // get sdk instance
-        zoomsdk = ZOOMSDKMOD.ZoomSDK.getInstance({
-            path:'../lib/node_modules/zoomsdk/build/Release/',
-            threadsafemode: 0,
-            apicallretcb: function (apiname, ret) {
-                console.log(`call api, apiname: ${apiname}, ret: ${ret}`);
-                if ("InitSDK" == apiname && ZOOMSDKMOD.ZoomSDKError.SDKERR_SUCCESS == ret) {
-                   
-                    // get zoom auth module
-                    zoomauth = zoomsdk.GetAuth({
-                        authcb: status => {
+        
+        const $logs = document.getElementById('logs')
+        let html = ''
+        function mylog(...args) {
+            console.log(...args)
+            html += `<p>[${new Date()}] ${args.join('  ')}</p>`
+            $logs.innerHTML = html
+        }
 
-                            // !!!!! it's the callback after auth, never be triggered if zoom sdk runs in renderer process
-                            console.log("zoom sdk auth cb", status);
-                            sdkReady = status === ZOOMSDKMOD.ZOOMAUTHMOD.ZoomAuthResult.AUTHRET_SUCCESS;
-                        }
-                    });
-                    // get zoom meeting module
-                    zoommeeting = zoomsdk.GetMeeting({});
-                    console.log('before call sdk auth');
-                    zoomauth.SDKAuth(
-                        "PWT7phpeZP00QnlSCXik2vjEzMgdQIJGWqeN",
-                        "UG6N5OOSgGUuxb0FSzyJW2gPZItojqoEwImp"
-                    );
-                }
-            },
-            ostype: ZOOMSDKMOD.ZOOM_TYPE_OS_TYPE.WIN_OS
-        });
-        zoomsdk.InitSDK({
-            webdomain: "https://www.zoom.us",
-            langid: ZOOMSDKMOD.ZoomSDK_LANGUAGE_ID.LANGUAGE_English
-        });
+        // join a schueled meeting
         function join() {
-            console.log('join meeting 8700073849', sdkReady);
-            sdkReady && zoommeeting.JoinMeeting({
+            if (!sdkReady) {
+                alert('sdk not ready because auth not successful')
+                return
+            };
+            mylog('[info]joining meeting 8700073849');
+            zoommeeting.JoinMeeting({
                 meetingnum: 8700073849,
                 psw: "test",
                 username: "2333"
             });
         }
+
         function leave() {
+            if (!sdkReady) {
+                alert('sdk not ready because auth not successful')
+                return
+            };
+            mylog('[info]leave meeting 8700073849');
             sdkReady && zoommeeting.LeaveMeeting();
         }
+
+        // get sdk instance
+        function setZoomSDKInstance() {
+            zoomsdk = ZOOMSDKMOD.ZoomSDK.getInstance({
+                path: '../lib/zoomsdk/build/Release/',
+                threadsafemode: 0,
+                apicallretcb: function (apiname, ret) {
+                    mylog(`[info][api called] apiname: ${apiname}, ret: ${ret}`);
+                    if ("InitSDK" == apiname && ZOOMSDKMOD.ZoomSDKError.SDKERR_SUCCESS == ret) {
+
+                        // get zoom auth module
+                        zoomauth = zoomsdk.GetAuth({
+                            authcb: status => {
+                                // it's the callback after auth, can be triggered if zoom sdk runs in main process
+                                mylog("[info][auth callack] status", status);
+                                sdkReady =
+                                    status === ZOOMSDKMOD.ZOOMAUTHMOD.ZoomAuthResult.AUTHRET_SUCCESS;
+                            }
+                        });
+
+                        // get zoom meeting module
+                        zoommeeting = zoomsdk.GetMeeting({
+                            meetingstatuscb: (...args) => mylog(
+                                '[info][meeting status callback]',
+                                ZOOMSDKMOD.ZOOMMEETINGMOD.ZoomMeetingStatus[args[0]]
+                            ),
+                            meetinguserjoincb: (...args) => mylog(
+                                '[info][meeting user join callback]',
+                                JSON.stringify(args[0])
+                            ),
+                            meetinguserleftcb: (...args) => mylog(
+                                '[info][meeting user left callback]',
+                                JSON.stringify(args[0])
+                            )
+                        });
+
+                        mylog('[info]calling sdk auth');
+                        zoomauth.SDKAuth(
+                            "PWT7phpeZP00QnlSCXik2vjEzMgdQIJGWqeN",
+                            "UG6N5OOSgGUuxb0FSzyJW2gPZItojqoEwImp"
+                        );
+                    }
+                },
+                ostype: ZOOMSDKMOD.ZOOM_TYPE_OS_TYPE.WIN_OS
+            });
+        }
+
+        function InitSDK() {
+            zoomsdk.InitSDK({
+                webdomain: "https://www.zoom.us",
+                langid: ZOOMSDKMOD.ZoomSDK_LANGUAGE_ID.LANGUAGE_English
+            });
+        }
+
+        setZoomSDKInstance();
+        setTimeout(() => {
+            InitSDK();
+        }, 1000)
+        
+
+
     </script>
 </body>
 

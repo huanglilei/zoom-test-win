@@ -1,0 +1,20 @@
+{
+    "files": [
+        "zoom-sdk-electron/"
+    ],
+    "asarUnpack": [
+        "zoom-sdk-electron/lib/zoomsdk"
+    ],
+    "win": {
+        "target": [
+            {
+                "target": "nsis",
+                "arch": "ia32"
+            }
+        ]
+    },
+    "productName": "zoomsdk-in-main-process-demo",
+    "directories": {
+        "output": "build-win"
+    }
+}

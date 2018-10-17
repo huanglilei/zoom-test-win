@@ -7,12 +7,22 @@
 </head>
 
 <body>
+    <h2>In the case ZoomSDK running in MAIN PROCESS, everything is good</h2>
     <button onclick="join()">join room 8700073849</button>
     <button onclick="leave()">leave</button>
+    <div id="logs">
+    </div>
     <script>
         const { ipcRenderer } = require('electron')
         const join = () => ipcRenderer.send('join')
         const leave = () => ipcRenderer.send('leave')
+        const $logs = document.getElementById('logs');
+        let html = '';
+        ipcRenderer.on('log', (evt, {args}) => {
+            console.log(evt, args)
+            html += `<p>[${new Date()}] ${args.join('  ')}</p>`
+            $logs.innerHTML = html
+        })
     </script>
 </body>
 

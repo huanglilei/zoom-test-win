@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:main": "electron ./zoom-sdk-electron/demo-zoom-in-main/main",
     "start:renderer": "electron ./zoom-sdk-electron/demo-zoom-in-renderer/main",
-    "build:main": "electron-builder --config config.json",
-    "build:renderer": "electron-builder"
+    "build:main": "electron-builder --config config-main.json",
+    "build:renderer": "electron-builder --config config-renderer.json"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,5 @@
   "engines": {
     "node": "6.10.3"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
